@@ -1,26 +1,26 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { IForm } from '@/shared/types'
+import { IFormLogin } from '@/shared/types'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { registerFormSchema } from '@/shared/types/zod'
+import { loginFormSchema } from '@/shared/types/zod'
 import { InputForm } from '@/shared/components/auth/ui/input-form'
 import { ButtonForm } from '@/shared/components/auth/ui/button-form'
 
-export const RegisterFrom = () => {
+export const LoginFrom = () => {
   const router = useRouter()
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting }
-  } = useForm<IForm>({
-    resolver: zodResolver(registerFormSchema),
+  } = useForm<IFormLogin>({
+    resolver: zodResolver(loginFormSchema),
     mode: 'onChange'
   })
 
-  const onSubmit: SubmitHandler<IForm> = async (data) => {
-    const res = await fetch('/api/auth/register', {
+  const onSubmit: SubmitHandler<IFormLogin> = async (data) => {
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -31,13 +31,13 @@ export const RegisterFrom = () => {
     const result = await res.json()
 
     if (res.ok) {
-      alert('Application sent successfully!')
+      alert('Login successfully!')
 
-      setTimeout(() => {
-        router.push('/todo-list')
-      }, 300)
+      localStorage.setItem('token', result.token)
+
+      return router.push('/todolist')
     } else {
-      alert(`Error sending an application: ${result.error}`)
+      alert(`Error login: ${result.error}`)
     }
   }
 
@@ -45,15 +45,8 @@ export const RegisterFrom = () => {
     <>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className={'flex flex-col gap-4 w-full max-w-xl p-6'}
+        className={'flex flex-col gap-4 w-full max-w-xl p-6 '}
       >
-        <InputForm
-          type={'name'}
-          placeholder={'Your name'}
-          register={register}
-          errors={errors}
-        />
-
         <InputForm
           type={'email'}
           placeholder={'Your email'}
@@ -68,7 +61,14 @@ export const RegisterFrom = () => {
           errors={errors}
         />
 
-        <ButtonForm isSubmitting={isSubmitting} />
+        <span
+          onClick={() => router.push('/register')}
+          className='text-blue-500 font-medium cursor-pointer'
+        >
+          You don't have an account? Register
+        </span>
+
+        <ButtonForm text={'Login'} isSubmitting={isSubmitting} />
       </form>
     </>
   )

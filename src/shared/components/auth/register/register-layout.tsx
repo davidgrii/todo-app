@@ -2,7 +2,7 @@ import React from 'react'
 import { Container } from '@/shared/components/ui'
 import { RegisterFrom } from '@/shared/components/auth/register/ui/register-from'
 
-export const LayoutRegister = () => {
+export const RegisterLayout = () => {
   return (
     <>
       <Container className={'flex flex-col justify-center items-center'}>

@@ -1,1 +1,1 @@
-export { RegisterLayout } from './register-layout'
+export { LoginLayout } from './login-layout'

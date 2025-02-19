@@ -1,5 +1,5 @@
-import { connectDB } from '@/widgets/lib/mongodb'
-import { TodoList } from '@/widgets/models/todo.model'
+import { connectDB } from '@/lib/db'
+import { TodoList } from '@/models/todo.model'
 import { ITodoList } from '@/shared/types'
 
 export async function GET() {
@@ -17,7 +17,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { name } = await req.json()
+  const { name, completed } = await req.json()
 
   if (!name) {
     return new Response(JSON.stringify({ error: 'Name is required' }), {
@@ -28,7 +28,8 @@ export async function POST(req: Request) {
   await connectDB()
 
   try {
-    const newTodoList = new TodoList({ name })
+    const newTodoList = new TodoList({ name, completed: completed ?? false })
+
     await newTodoList.save()
     return new Response(JSON.stringify(newTodoList), { status: 201 })
   } catch (error) {

@@ -1,6 +1,6 @@
 import React from 'react'
-import { cn } from '@/shared/components/ui/utils'
 import { IconAlertTriangleFilled } from '@tabler/icons-react'
+import { cn } from '@/shared/utils'
 
 interface IProps {
   message: string | undefined
@@ -13,12 +13,7 @@ export const FormErrors: React.FC<IProps> = ({ message, className }) => {
   }
 
   return (
-    <p
-      className={cn(
-        className,
-        'flex gap-2 text-sm text-center text-red-500 pt-3'
-      )}
-    >
+    <p className={cn(className, 'flex gap-2 text-sm text-center text-red-500')}>
       <IconAlertTriangleFilled className={'w-5 h-5'} /> {message}
     </p>
   )

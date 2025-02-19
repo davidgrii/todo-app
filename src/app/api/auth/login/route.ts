@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
-import { connectDB } from '@/back/lib/mongodb'
-import { User } from '@/back/models/user.model'
-import bcrypt from 'bcrypt'
+import { connectDB } from '@/lib/db'
+import { User } from '@/models/user.model'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json()
+    const { email, password } = await req.json()
 
-    if (!name || !email || !password) {
+    if (!email || !password) {
       return NextResponse.json(
         { message: 'All fields are required' },
         { status: 400 }
@@ -15,26 +16,45 @@ export async function POST(req: Request) {
     }
 
     await connectDB()
+
     const existingUser = await User.findOne({ email })
 
-    if (existingUser) {
+    if (!existingUser) {
+      return NextResponse.json({ message: 'User not found' }, { status: 400 })
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      existingUser.password
+    )
+
+    if (!isPasswordValid) {
       return NextResponse.json(
-        { message: 'User already exists' },
+        { message: 'Incorrect password' },
         { status: 400 }
       )
     }
 
-    const hashedPassword = await bcrypt.hash(password, 11)
-    const newUser = new User({ name, email, password: hashedPassword })
-
-    await newUser.save()
-
-    return NextResponse.json(
-      { message: 'User created successfully' },
-      { status: 201 }
+    const token = jwt.sign(
+      { userId: existingUser._id, email: existingUser.email },
+      process.env.NEXT_PUBLIC_AUTH_SECRET!,
+      { expiresIn: '24h' }
     )
+
+    const res = NextResponse.json(
+      { message: 'Login successful', token },
+      { status: 200 }
+    )
+
+    res.cookies.set('token', token, {
+      httpOnly: true,
+      secure: false,
+      path: '/'
+    })
+
+    return res
   } catch (error) {
-    console.error('Registration error:', error)
+    console.error('Login error:', error)
     return NextResponse.json(
       { message: 'Internal Server Error' },
       { status: 500 }

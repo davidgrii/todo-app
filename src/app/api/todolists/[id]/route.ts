@@ -1,9 +1,26 @@
-import { connectDB } from '@/lib/mongodb'
+import { connectDB } from '@/lib/db'
 import { TodoList } from '@/models/todo.model'
 import { ITodoList } from '@/shared/types'
+import { NextRequest } from 'next/server'
 
-export async function PUT({ params }: { params: { id: string } }) {
-  const { id } = params
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  if (!params || !params.id) {
+    return new Response(JSON.stringify({ error: 'ID is required' }), {
+      status: 400
+    })
+  }
+
+  const { id } = await params
+  const { name } = await req.json()
+
+  if (!name) {
+    return new Response(JSON.stringify({ error: 'Name is required' }), {
+      status: 400
+    })
+  }
 
   await connectDB()
 
@@ -16,6 +33,9 @@ export async function PUT({ params }: { params: { id: string } }) {
       })
     }
 
+    todoList.name = name
+    await todoList.save()
+
     return new Response(JSON.stringify(todoList), { status: 200 })
   } catch (error) {
     return new Response(
@@ -24,33 +44,35 @@ export async function PUT({ params }: { params: { id: string } }) {
     )
   }
 }
-export async function DELETE({ params }: { params: { id: string } }) {
-  const { id } = params
 
-  if (!id) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  if (!params || !params.id) {
     return new Response(JSON.stringify({ error: 'ID is required' }), {
       status: 400
     })
   }
 
+  const { id } = params
   await connectDB()
 
   try {
-    const deletedTodoList = await TodoList.findByIdAndDelete(id)
+    const deletedTodoList: ITodoList | null =
+      await TodoList.findByIdAndDelete(id)
 
     if (!deletedTodoList) {
-      console.error(`Todo list with ID ${id} not found`)
       return new Response(JSON.stringify({ error: 'Todo list not found' }), {
         status: 404
       })
     }
 
-    console.log(`Todo list with ID ${id} deleted successfully`)
     return new Response(JSON.stringify({ message: 'Todo list deleted' }), {
       status: 200
     })
   } catch (error) {
-    console.error('Error in DELETE:', error) // Логируем ошибку
+    console.error('Error in DELETE:', error)
     return new Response(
       JSON.stringify({ error: 'Failed to delete todo list' }),
       { status: 500 }

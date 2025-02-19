@@ -1,11 +1,11 @@
 'use client'
 
-import { LayoutRegister } from '@/shared/components/auth/register'
+import { LoginLayout } from '@/shared/components/auth/login/login-layout'
 
-export default function RegisterPage() {
+export default function LoginPage() {
   return (
     <>
-      <LayoutRegister />
+      <LoginLayout />
     </>
   )
 }

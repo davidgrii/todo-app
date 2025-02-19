@@ -1,29 +1,37 @@
-import { connectDB } from '@/lib/mongodb'
+import { connectDB } from '@/lib/db'
+import { NextRequest } from 'next/server'
 import { TodoList } from '@/models/todo.model'
-import { Task } from '@/models/task.model'
 
-export async function POST(req: Request) {
-  const { title, description, listId } = await req.json()
-
-  if (!title || !listId) {
-    return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  if (!params) {
+    return new Response(JSON.stringify({ error: 'ID is required' }), {
       status: 400
     })
   }
 
-  await connectDB()
+  const { id } = await params
 
   try {
-    const newTask = await Task.create({ title, description, listId })
+    await connectDB()
 
-    await TodoList.findByIdAndUpdate(listId, { $push: { tasks: newTask._id } })
+    const task = await TodoList.findById(id)
+    if (!task) {
+      return new Response(JSON.stringify({ error: 'Task not found' }), {
+        status: 404
+      })
+    }
 
-    return new Response(
-      JSON.stringify({ message: 'Task created', task: newTask }),
-      { status: 201 }
-    )
+    task.completed = !task.completed
+    await task.save()
+
+    return new Response(JSON.stringify({ message: 'Task updated', task }), {
+      status: 200
+    })
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Failed to create task' }), {
+    return new Response(JSON.stringify({ error: 'Failed to update task' }), {
       status: 500
     })
   }

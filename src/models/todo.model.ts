@@ -1,11 +1,18 @@
-import { model, models, Schema } from 'mongoose'
+import { model, models, Schema, Types } from 'mongoose'
 
 const todoListSchema = new Schema(
   {
     name: {
       type: String,
       required: true
-    }
+    },
+    tasks: [
+      {
+        type: Types.ObjectId,
+        ref: 'Task'
+      }
+    ],
+    completed: { type: Boolean, default: false }
   },
   { timestamps: true }
 )
