@@ -78,7 +78,7 @@ export const useTodoStore = create<ITodoStore>((set) => ({
         list._id === id ? { ...list, completed: !list.completed } : list
       )
 
-      fetch(`/api/tasks/${id}`, {
+      fetch(`/api/todolists/tasks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

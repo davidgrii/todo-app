@@ -1,11 +1,7 @@
 import { connectDB } from '@/lib/db'
-import { NextRequest } from 'next/server'
 import { TodoList } from '@/models/todo.model'
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT({ params }: { params: { id: string } }) {
   if (!params) {
     return new Response(JSON.stringify({ error: 'ID is required' }), {
       status: 400
@@ -18,6 +14,7 @@ export async function PUT(
     await connectDB()
 
     const task = await TodoList.findById(id)
+
     if (!task) {
       return new Response(JSON.stringify({ error: 'Task not found' }), {
         status: 404
@@ -25,6 +22,7 @@ export async function PUT(
     }
 
     task.completed = !task.completed
+
     await task.save()
 
     return new Response(JSON.stringify({ message: 'Task updated', task }), {

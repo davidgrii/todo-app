@@ -1,12 +1,14 @@
 import { connectDB } from '@/lib/db'
 import { TodoList } from '@/models/todo.model'
 import { ITodoList } from '@/shared/types'
+import { NextRequest } from 'next/server'
 
 export async function GET() {
   await connectDB()
 
   try {
     const todoLists: ITodoList[] = await TodoList.find()
+
     return new Response(JSON.stringify(todoLists), { status: 200 })
   } catch (error) {
     return new Response(
@@ -16,7 +18,7 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const { name, completed } = await req.json()
 
   if (!name) {
@@ -31,6 +33,7 @@ export async function POST(req: Request) {
     const newTodoList = new TodoList({ name, completed: completed ?? false })
 
     await newTodoList.save()
+
     return new Response(JSON.stringify(newTodoList), { status: 201 })
   } catch (error) {
     return new Response(

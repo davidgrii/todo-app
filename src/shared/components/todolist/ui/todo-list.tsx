@@ -5,8 +5,7 @@ export const TodoList = () => {
   const [editListName, setEditListName] = useState('')
   const [editingListId, setEditingListId] = useState<string | null>(null)
 
-  const { todoLists, updateTodoList, deleteTodoList, toggleTaskCompletion } =
-    useTodoStore()
+  const { todoLists, updateTodoList, deleteTodoList, toggleTaskCompletion } = useTodoStore()
 
   const handleEditTodoList = async () => {
     if (!editListName.trim()) return

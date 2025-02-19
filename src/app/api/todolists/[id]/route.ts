@@ -3,10 +3,7 @@ import { TodoList } from '@/models/todo.model'
 import { ITodoList } from '@/shared/types'
 import { NextRequest } from 'next/server'
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   if (!params || !params.id) {
     return new Response(JSON.stringify({ error: 'ID is required' }), {
       status: 400
@@ -45,10 +42,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE({ params }: { params: { id: string } }) {
   if (!params || !params.id) {
     return new Response(JSON.stringify({ error: 'ID is required' }), {
       status: 400
@@ -59,8 +53,7 @@ export async function DELETE(
   await connectDB()
 
   try {
-    const deletedTodoList: ITodoList | null =
-      await TodoList.findByIdAndDelete(id)
+    const deletedTodoList: ITodoList | null = await TodoList.findByIdAndDelete(id)
 
     if (!deletedTodoList) {
       return new Response(JSON.stringify({ error: 'Todo list not found' }), {
